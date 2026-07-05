@@ -1,5 +1,29 @@
 apply plugin: 'com.android.application'
 
+// ============================================================
+// 读取签名配置：优先使用环境变量（GitHub Actions 注入），否则回退 local.properties
+// ============================================================
+def keystoreFile = System.getenv("KEYSTORE_FILE")
+def keystorePassword = System.getenv("KEYSTORE_PASSWORD")
+def keyAlias = System.getenv("KEY_ALIAS")
+def keyPassword = System.getenv("KEY_PASSWORD")
+
+def localPropsFile = rootProject.file('local.properties')
+if ((keystoreFile == null || keystorePassword == null || keyAlias == null || keyPassword == null)
+    && localPropsFile.exists()) {
+    def localProps = new Properties()
+    localProps.load(localPropsFile.newDataInputStream())
+    if (keystoreFile == null)     keystoreFile     = localProps.getProperty('storeFile')
+    if (keystorePassword == null) keystorePassword = localProps.getProperty('storePassword')
+    if (keyAlias == null)         keyAlias         = localProps.getProperty('keyAlias')
+    if (keyPassword == null)      keyPassword      = localProps.getProperty('keyPassword')
+}
+
+// 布尔：是否拥有 release 签名配置所需的全部字段
+def hasReleaseSigning = (keystoreFile != null && keystorePassword != null
+                      && keyAlias != null && keyPassword != null
+                      && file(keystoreFile).exists())
+
 android {
     namespace = "com.duojiusuanshu.app"
     compileSdk = rootProject.ext.compileSdkVersion
@@ -16,10 +40,31 @@ android {
             ignoreAssetsPattern = '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
         }
     }
+
+    // ----- 签名配置（仅在 release 签名四要素齐全时才定义，避免本地没有签名时 build release 报错） -----
+    if (hasReleaseSigning) {
+        signingConfigs {
+            release {
+                storeFile file(keystoreFile)
+                storePassword keystorePassword
+                keyAlias keyAlias
+                keyPassword keyPassword
+            }
+        }
+    }
+
     buildTypes {
+        debug {
+            // debug 继续沿用默认 debug keystore（由 Android Gradle Plugin 自动生成）
+            minifyEnabled false
+        }
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            // 有 release 签名时绑定；否则生成 unsigned release APK（可本地手动签名，避免 CI 缺配置时整个 job 失败）
+            if (hasReleaseSigning) {
+                signingConfig signingConfigs.release
+            }
         }
     }
 }

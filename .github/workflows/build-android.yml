@@ -99,8 +99,16 @@ jobs:
       run: |
         cd android
         echo "=== Building Release APK ==="
+        # 用绝对路径，避免 Gradle 在 :app 模块里把相对路径解析为 android/app/xxx.keystore
+        STORE_FILE="$(pwd)/my-release-key.keystore"
+        echo "STORE_FILE=$STORE_FILE"
+        ls -la "$STORE_FILE"
         ./gradlew clean
-        ./gradlew assembleRelease --no-build-cache --no-daemon -Pandroid.injected.signing.store.file=my-release-key.keystore -Pandroid.injected.signing.store.password="${{ secrets.KEYSTORE_PASSWORD }}" -Pandroid.injected.signing.key.alias="${{ secrets.KEY_ALIAS }}" -Pandroid.injected.signing.key.password="${{ secrets.KEY_PASSWORD }}"
+        ./gradlew assembleRelease --no-build-cache --no-daemon \
+          -Pandroid.injected.signing.store.file="$STORE_FILE" \
+          -Pandroid.injected.signing.store.password="${{ secrets.KEYSTORE_PASSWORD }}" \
+          -Pandroid.injected.signing.key.alias="${{ secrets.KEY_ALIAS }}" \
+          -Pandroid.injected.signing.key.password="${{ secrets.KEY_PASSWORD }}"
         ls -la app/build/outputs/apk/release/
 
     - name: Build Android Debug APK

@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>隐私政策 - 多久算数</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        html, body {
+            min-height: 100%;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue",
+                         "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+            background: #050510;
+            color: #e2e8f0; /* slate-200 */
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            position: relative;
+            overflow-x: hidden;
+        }
+        /* ===== 背景流动光晕（与 App.tsx 中流体玻璃背景一致） ===== */
+        .bg-orbs {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
+            overflow: hidden;
+        }
+        .bg-orbs::before,
+        .bg-orbs::after {
+            content: "";
+            position: absolute;
+            border-radius: 9999px;
+            filter: blur(100px);
+            opacity: 0.35;
+        }
+        .bg-orbs::before {
+            width: 600px;
+            height: 600px;
+            top: -10%;
+            right: -10%;
+            background: #4c1d95; /* purple-900 基底 */
+            animation: pulsePurple 15s ease-in-out infinite;
+        }
+        .bg-orbs::after {
+            width: 500px;
+            height: 500px;
+            bottom: -10%;
+            left: -10%;
+            background: #1e3a8a; /* blue-900 基底 */
+            animation: pulseBlue 18s ease-in-out infinite;
+        }
+        @keyframes pulsePurple {
+            0%, 100% { transform: scale(1); opacity: 0.35; }
+            50% { transform: scale(1.1); opacity: 0.5; }
+        }
+        @keyframes pulseBlue {
+            0%, 100% { transform: scale(1); opacity: 0.3; }
+            50% { transform: scale(1.12); opacity: 0.45; }
+        }
+
+        /* ===== 内容容器（类似 AgreementModal 风格） ===== */
+        .page-wrapper {
+            position: relative;
+            z-index: 1;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            padding: 48px 24px;
+        }
+        .content-card {
+            width: 100%;
+            max-width: 768px; /* max-w-3xl */
+            background: rgba(15, 15, 26, 0.95); /* #0F0F1A/95 深色玻璃底色 */
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid rgba(255, 255, 255, 0.1); /* border-white/10 */
+            border-radius: 28px;
+            padding: 48px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        /* ===== 排版层级（1:1 映射 PrivacyPolicyContent.tsx 的 Tailwind 样式） ===== */
+        h1 {
+            font-size: 24px;
+            font-weight: 700;
+            text-align: center;
+            color: #60a5fa; /* blue-400 */
+            margin-bottom: 8px;
+        }
+        .subtitle {
+            text-align: center;
+            color: #94a3b8; /* slate-400 */
+            margin-bottom: 24px;
+            font-size: 14px;
+        }
+        h2 {
+            font-size: 20px;
+            font-weight: 600;
+            color: #ffffff;
+            margin-top: 32px; /* mt-8 = 32px */
+            margin-bottom: 16px; /* mb-4 = 16px */
+            padding-bottom: 8px; /* pb-2 = 8px */
+            border-bottom: 2px solid rgba(255, 255, 255, 0.1); /* border-b-2 border-white/10 */
+        }
+        p {
+            font-size: 16px;
+            color: #cbd5e1; /* slate-300 */
+            line-height: 1.7;
+            margin-bottom: 24px; /* mb-6 = 24px */
+        }
+        p.mb-4 { margin-bottom: 16px; }
+
+        /* 高亮欢迎卡片（对应 TSX: from-blue-500/10 to-purple-500/10 + border-l-4 border-blue-400） */
+        .highlight-box {
+            background: linear-gradient(to right,
+                              rgba(59, 130, 246, 0.1),
+                              rgba(168, 85, 247, 0.1));
+            padding: 24px;
+            border-radius: 12px;
+            border-left: 4px solid #60a5fa; /* blue-400 */
+            margin-bottom: 24px;
+        }
+        .highlight-box p {
+            color: #cbd5e1;
+            line-height: 1.7;
+            margin-bottom: 0;
+        }
+
+        /* 列表：mb-6 space-y-3 */
+        ol, ul {
+            list-style: decimal;
+            padding-left: 24px;
+            margin-bottom: 24px;
+        }
+        li {
+            color: #cbd5e1;
+            line-height: 1.7;
+            margin-bottom: 12px;
+            padding-left: 4px;
+        }
+        li:last-child {
+            margin-bottom: 0;
+        }
+
+        /* strong 强调色（正文中为更高对比度的白色/近白） */
+        strong {
+            color: #f1f5f9; /* 接近 white，slate-100 更轻 */
+            font-weight: 600;
+        }
+
+        /* 联系方式卡片：bg-white/5 + border-white/10 */
+        .contact-box {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 24px;
+        }
+        .contact-box p {
+            margin-bottom: 8px;
+        }
+        .contact-box p:last-child {
+            margin-bottom: 0;
+        }
+
+        /* 页脚声明：border-t border-white/10 + 文字递减层级 */
+        .footer {
+            margin-top: 32px; /* mt-8 */
+            padding-top: 24px; /* pt-6 */
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            text-align: center;
+        }
+        .footer p {
+            text-align: center;
+        }
+        .footer .line-1,
+        .footer .line-2 {
+            color: #94a3b8; /* slate-400 */
+        }
+        .footer .line-1 { margin-bottom: 8px; }
+        .footer .line-2 { margin-bottom: 16px; }
+        .footer .copyright {
+            color: #64748b; /* slate-500 */
+            font-size: 14px; /* text-sm */
+            margin-bottom: 0;
+        }
+
+        /* ===== 移动端响应式 ===== */
+        @media (max-width: 640px) {
+            .page-wrapper {
+                padding: 24px 12px;
+            }
+            .content-card {
+                padding: 28px 20px;
+                border-radius: 22px;
+            }
+            h1 { font-size: 22px; }
+            h2 { font-size: 18px; margin-top: 28px; }
+            p, li { font-size: 15px; }
+            .highlight-box { padding: 20px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 流体背景光晕 -->
+    <div class="bg-orbs" aria-hidden="true"></div>
+
+    <div class="page-wrapper">
+        <div class="content-card">
+
+            <!-- 标题 + 生效日期 -->
+            <h1>🔒 隐私政策</h1>
+            <p class="subtitle"><strong>生效日期</strong>：2026年07月05日</p>
+
+            <!-- 欢迎高亮框 -->
+            <div class="highlight-box">
+                <p>欢迎使用「多久算数」（以下简称&quot;本应用&quot;）。本应用由<strong>深圳丰佰瑞网络科技有限公司</strong>（以下简称&quot;我们&quot;）开发并运营。我们深知个人信息对您的重要性，将严格遵守《中华人民共和国个人信息保护法》等相关法律法规，保护您的个人信息安全。</p>
+            </div>
+
+            <!-- 引言 -->
+            <p>本隐私政策旨在说明我们如何收集、使用、存储和保护您在使用本应用过程中提供的个人信息，以及您对这些信息所享有的权利。请您在使用本应用前仔细阅读并充分理解本政策的全部内容，尤其是加粗的条款。如您对本政策有任何疑问、意见或建议，可通过本政策末尾提供的联系方式与我们联系。</p>
+
+            <!-- 一、我们收集的信息 -->
+            <h2>一、我们收集的信息</h2>
+            <p class="mb-4">在您使用本应用的过程中，我们会收集以下信息，以提供、维护和改进我们的服务：</p>
+            <ol>
+                <li><strong>纪念日与时光记录数据</strong>：您在使用本应用过程中主动录入的所有<strong>纪念日标题、日期时间、事件类型、图标、置顶状态、昵称、自定义水印以及相关时光计算数据</strong>。这些数据是本应用的核心功能内容，用于为您提供纪念日记录、倒计时/正计时统计、人生/恋爱/婚姻时光计算和历史记录服务。</li>
+                <li><strong>应用偏好设置</strong>：您自定义的<strong>字体大小、主题样式、昵称、水印内容、模块置顶配置等偏好设置</strong>，用于持久化保存您的个性化界面与使用习惯。</li>
+                <li><strong>设备信息</strong>：为了保障应用的稳定运行和优化用户体验，我们会自动收集您的设备相关信息，包括但不限于<strong>设备型号、操作系统版本、设备标识符（如 Android ID）</strong>等。</li>
+            </ol>
+
+            <!-- 二、我们如何使用收集的信息 -->
+            <h2>二、我们如何使用收集的信息</h2>
+            <p class="mb-4">我们仅会在以下合法、正当、必要的范围内使用您的个人信息：</p>
+            <ol>
+                <li><strong>提供和改进服务</strong>：使用您的纪念日与时光数据来实现纪念日增删改查、时光跨度计算、海报画布生成与下载、历史记录等核心功能；通过分析设备信息和使用数据，优化应用性能，修复已知问题，提升用户体验。</li>
+                <li><strong>偏好持久化</strong>：将您的字体、主题、昵称、水印、模块置顶等偏好设置保存在本地，保证您每次打开应用都能恢复到熟悉的使用界面。</li>
+                <li><strong>数据分析和统计</strong>：在对您的个人信息进行匿名化或去标识化处理后，进行内部数据分析和统计，以了解用户群体的使用习惯和需求，从而更好地规划和改进产品功能。</li>
+            </ol>
+
+            <!-- 三、我们如何共享、转让和公开披露信息 -->
+            <h2>三、我们如何共享、转让和公开披露信息</h2>
+            <p class="mb-4">我们郑重承诺，严格保护您的个人信息，不会在以下情形之外向任何第三方共享、转让或公开披露您的信息：</p>
+            <ol>
+                <li><strong>法定情形</strong>：根据法律法规的规定、行政或司法机关的强制性要求，我们可能会向有关部门披露您的相关信息。</li>
+                <li><strong>获得明确同意</strong>：在获得您的明确书面同意后，我们才会向第三方共享您的个人信息。</li>
+                <li><strong>业务必要且合规</strong>：为了实现本政策第二条所述的目的，我们可能会与提供技术支持或其他必要服务的合作伙伴共享必要的信息，但我们会要求其严格遵守本政策及相关法律法规，并对您的信息承担保密义务。</li>
+            </ol>
+
+            <!-- 四、我们如何存储和保护信息 -->
+            <h2>四、我们如何存储和保护信息</h2>
+            <ol>
+                <li><strong>存储地点和期限</strong>：您的纪念日与设置等个人信息默认存储于<strong>您的设备本地（localStorage）</strong>，不会主动上传服务器。如需云端同步等扩展服务，我们会另行告知并取得您的同意；我们会在实现本政策所述目的所必需的最短时间内保留您的信息，超出此期限后，我们将对您的信息进行删除或匿名化处理。</li>
+                <li><strong>安全措施</strong>：我们采用符合行业标准的技术手段和安全管理措施来保护您的个人信息，包括但不限于数据加密、访问控制、安全审计等，以防止信息泄露、丢失、篡改或被未经授权的访问。</li>
+            </ol>
+
+            <!-- 五、您的权利 -->
+            <h2>五、您的权利</h2>
+            <p class="mb-4">根据相关法律法规，您对您的个人信息享有以下权利：</p>
+            <ol>
+                <li><strong>访问权</strong>：您可以随时在本应用的「纪念日」页面和「首页」查看和管理您录入的纪念日数据、时光数据以及相关历史记录。</li>
+                <li><strong>更正权</strong>：如您发现您的纪念日、时光或设置数据存在错误，您可以通过应用内的编辑功能进行修改和更正。</li>
+                <li><strong>删除权</strong>：您可以随时删除单条纪念日记录，或在「设置」页面点击清除全部数据，应用将立即从本地删除相关数据。</li>
+                <li><strong>数据导出</strong>：本应用所有数据存储在您的设备本地，您可以通过截屏、保存海报、设备备份等方式导出您的数据。</li>
+            </ol>
+
+            <!-- 六、未成年人保护 -->
+            <h2>六、未成年人保护</h2>
+            <p>我们非常重视对未成年人个人信息的保护。如您是未满14周岁的未成年人，在使用本应用前，应在监护人的指导下仔细阅读本政策，并征得监护人的同意。如我们发现自己在未事先获得监护人可验证同意的情况下收集了未成年人的个人信息，将立即删除相关数据。</p>
+
+            <!-- 七、本政策的更新 -->
+            <h2>七、本政策的更新</h2>
+            <p>我们可能会根据法律法规的更新、业务的调整或技术的发展，适时对本隐私政策进行修订。修订后的政策将在本应用内显著位置公示，并在生效前通过合理方式通知您。如您继续使用本应用，即表示您同意接受修订后的政策。</p>
+
+            <!-- 八、联系我们 -->
+            <h2>八、联系我们</h2>
+            <p class="mb-4">如您对本隐私政策有任何疑问、意见或建议，或需要行使您的相关权利，请通过以下方式与我们联系：</p>
+            <div class="contact-box">
+                <p><strong>运营主体</strong>：深圳丰佰瑞网络科技有限公司</p>
+                <p><strong>电子邮箱</strong>：Jp112025@163.com</p>
+            </div>
+
+            <!-- 页脚 -->
+            <div class="footer">
+                <p class="line-1">感谢您使用多久算数！</p>
+                <p class="line-2">我们致力于为您提供纯净、浪漫的时光记录体验。</p>
+                <p class="copyright">© 2026 深圳丰佰瑞网络科技有限公司 版权所有</p>
+            </div>
+
+        </div>
+    </div>
+
+</body>
+</html>

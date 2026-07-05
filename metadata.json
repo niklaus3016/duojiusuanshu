@@ -1,0 +1,6 @@
+{
+  "name": "多久算数",
+  "description": "一款高颜值、轻量化、沉浸式的本地日期时间间隔计算与记录工具，支持人生计时、恋爱纪念、周期纪念、精准时间差等多种场景，配备治愈文案、磨砂渐变美化与一键海报生成。",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

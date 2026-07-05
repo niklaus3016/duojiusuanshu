@@ -1,0 +1,83 @@
+name: Build Android APK (Debug)
+
+on:
+  push:
+    branches: [main, master]
+    paths:
+      - 'src/**'
+      - 'public/**'
+      - 'android/**'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'vite.config.*'
+      - 'capacitor.config.*'
+      - 'index.html'
+      - '.github/workflows/**'
+  workflow_dispatch:  # 允许手动从 Actions 面板触发
+
+concurrency:
+  group: apk-build-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-apk:
+    name: Build 多久算数 Android APK
+    runs-on: ubuntu-latest
+
+    env:
+      NODE_VERSION: '22'
+      JAVA_VERSION: '17'
+      JAVA_DISTRIBUTION: 'zulu'
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # -------- Node 环境 & npm 依赖 --------
+      - name: Setup Node.js ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - name: Install npm dependencies
+        run: npm ci
+
+      # -------- Web 生产构建 (Vite) --------
+      - name: Build web (Vite production)
+        run: npm run build
+
+      # -------- Java / Gradle / Android SDK --------
+      - name: Setup JDK ${{ env.JAVA_VERSION }} (${{ env.JAVA_DISTRIBUTION }})
+        uses: actions/setup-java@v4
+        with:
+          distribution: ${{ env.JAVA_DISTRIBUTION }}
+          java-version: ${{ env.JAVA_VERSION }}
+          cache: 'gradle'
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Accept Android SDK licenses
+        run: yes | sdkmanager --licenses || true
+
+      # -------- Capacitor Sync: dist -> android/assets + gradle deps --------
+      - name: Capacitor sync (copy web dist to Android)
+        run: npx cap sync android
+
+      - name: Grant gradlew executable
+        run: chmod +x ./android/gradlew
+
+      # -------- Gradle: Debug APK --------
+      - name: Build Debug APK
+        working-directory: android
+        run: ./gradlew assembleDebug --no-daemon --stacktrace
+
+      # -------- 上传产物到 Artifacts --------
+      - name: Upload Debug APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: duojiusuanshu-debug-apk
+          path: android/app/build/outputs/apk/debug/app-debug.apk
+          compression-level: 6
+          retention-days: 30
